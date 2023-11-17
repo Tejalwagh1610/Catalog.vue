@@ -1,0 +1,331 @@
+<template>
+  <div id="domain-tree">
+    <div class="branch _domain">
+      {{ domainData }}
+      <div
+        class="entry"
+        v-for="(domain, domainIndex) in domainData"
+        :key="domainIndex"
+      >
+        <span
+          >{{ domain.domainName }}
+          <q-icon name="add" class="cursor-pointer" @click="test"
+        /></span>
+        <div class="branch _technology">
+          <div>
+            <q-btn-dropdown :dense="true" label="Add Technology">
+              <div>
+                <q-checkbox
+                  v-model="selectAll"
+                  label="Select All"
+                  @update:model-value="selectAllDomain()"
+                />
+                <q-input
+                  :dense="true"
+                  v-model="searchTech"
+                  label="Search"
+                  @update:model-value="filterSearch()"
+                />
+                <div class="tech-list">
+                  <div
+                    v-for="(tech, index) in technologyList"
+                    :key="index"
+                    class="flex justify-between body"
+                  >
+                    <q-checkbox
+                      v-model="techModel"
+                      :val="tech.name"
+                      :label="tech.name"
+                    />
+                  </div>
+                </div>
+                <div class="_domain-btn-wrapper flex justify-between q-ma-sm">
+                  <div class="_cancel-btn cursor-pointer" v-close-popup>
+                    <span>Cancel</span>
+                  </div>
+                  <div
+                    class="_apply-btn cursor-pointer"
+                    v-close-popup
+                    @click="addTechnology(domainIndex)"
+                  >
+                    <span>Add</span>
+                  </div>
+                </div>
+              </div>
+            </q-btn-dropdown>
+          </div>
+          <div
+            class="entry"
+            v-for="(technology, i) in domain.technologies"
+            :key="i"
+          >
+            <span
+              >{{ technology.name }}
+              <q-icon name="add" class="cursor-pointer" @click="test"
+            /></span>
+            <div class="branch _deliverable">
+              <div
+                class="entry"
+                v-for="(deliverable, i) in technology.deliverables"
+                :key="i"
+              >
+                <span>{{ deliverable.name }}</span>
+                <div class="branch">
+                  <div
+                    class="entry"
+                    v-for="(process, i) in deliverable.processes"
+                    :key="i"
+                  >
+                    <span>{{ process.name }}</span>
+                    <div class="branch _subprocess">
+                      <div
+                        class="entry"
+                        v-for="(subprocess, i) in process.subprocesses"
+                        :key="i"
+                      >
+                        <span>{{ subprocess.name }}</span>
+                        <div class="branch">
+                          <div
+                            class="entry"
+                            v-for="(task, i) in subprocess.tasks"
+                            :key="i"
+                          >
+                            <span>{{ task.name }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+   
+  </div>
+</template>
+<script setup>
+import { ref } from "vue";
+const domainData = ref([
+  {
+    domainName: "Domain 1",
+  },
+  {
+    domainName: "Domain 2",
+  },
+]);
+ 
+const selectAll = ref(false);
+const domainList = ref([
+  {
+    id: 1,
+    name: "Domain1",
+  },
+  {
+    id: 2,
+    name: "Domain2",
+  },
+  {
+    id: 3,
+    name: "Domain3",
+  },
+]);
+const technologyList = ref([
+  {
+    id: 1,
+    name: "Technologies 1",
+  },
+  {
+    id: 2,
+    name: "Technologies 2",
+  },
+  {
+    id: 3,
+    name: "Technologies 3",
+  },
+]);
+const searchDomain = ref("");
+const searchTech = ref("");
+const techModel = ref([]);
+const domainModel = ref([]);
+const cards = ref([]);
+const domainListData = ref([
+  {
+    id: 1,
+    name: "Domain1",
+  },
+  {
+    id: 2,
+    name: "Domain2",
+  },
+  {
+    id: 3,
+    name: "Domain3",
+  },
+]);
+ 
+function selectAllDomain() {
+  selectAll.value != selectAll.value;
+  if (selectAll.value) {
+    domainModel.value = domainList.value.map(({ name }) => name);
+  } else {
+    domainModel.value = [];
+  }
+}
+function filterSearch() {
+  if (searchDomain.value === "") {
+    domainList.value = domainListData.value;
+    return;
+  }
+  domainList.value = domainList.value.filter((domain) =>
+    domain.name.toLowerCase().includes(searchDomain.value)
+  );
+}
+ 
+function addDomain() {
+  domainModel.value.forEach((domain) => {
+    domainData.value.push({
+      domainName: domain,
+    });
+  });
+}
+function addTechnology(domainIndex) {
+  console.log(domainIndex);
+  domainData.value[domainIndex].technologies = [];
+  techModel.value.forEach((tech) => {
+    domainData.value[domainIndex].technologies.push({
+      name: tech,
+    });
+  });
+}
+ 
+ 
+ 
+ 
+ 
+const testdrop = ref("");
+function test(data) {
+  testdrop.value = data;
+}
+</script>
+<style>
+#domain-tree {
+  padding: 10px;
+}
+#domain-tree .branch {
+  padding: 0px 0 0px 20px;
+}
+ 
+#domain-tree .branch:not(:first-child) {
+  margin-left: 170px;
+}
+ 
+#domain-tree .branch:not(:first-child):after {
+  content: "";
+  width: 20px;
+  border-top: 1px solid #ccc;
+  position: absolute;
+  left: 150px;
+  top: 50%;
+  margin-top: 1px;
+}
+ 
+.entry {
+  position: relative;
+  min-height: 40px;
+  display: block;
+}
+ 
+.entry:before {
+  content: "";
+  height: 100%;
+  border-left: 1px solid #ccc;
+  position: absolute;
+  left: -20px;
+}
+ 
+.entry:first-child:after {
+  height: 10px;
+  border-radius: 10px 0 0 0;
+}
+ 
+.entry:first-child:before {
+  width: 10px;
+  height: 50%;
+  top: 50%;
+  margin-top: 1px;
+  border-radius: 10px 0 0 0;
+}
+ 
+.entry:after {
+  content: "";
+  width: 20px;
+  transition: border 0.5s;
+  border-top: 1px solid #ccc;
+  position: absolute;
+  left: -20px;
+  top: 50%;
+  margin-top: 1px;
+}
+ 
+.entry:last-child:before {
+  width: 10px;
+  height: 50%;
+  border-radius: 0 0 0 10px;
+}
+.entry:last-child:after {
+  height: 10px;
+  border-top: none;
+  transition: border 0.5s;
+  border-bottom: 1px solid #ccc;
+  border-radius: 0 0 0 10px;
+  margin-top: -9px;
+}
+ 
+.entry:only-child:after {
+  width: 10px;
+  height: 0px;
+  margin-top: 1px;
+  border-radius: 0px;
+}
+ 
+.entry:only-child:before {
+  display: none;
+}
+ 
+.entry span {
+  border: 1px solid #ccc;
+  display: block;
+  min-width: 150px;
+  padding: 5px 10px;
+  line-height: 20px;
+  text-align: center;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  margin-top: -15px;
+  color: #666;
+ 
+  font-size: 14px;
+  display: inline-block;
+  border-radius: 5px;
+  transition: all 0.5s;
+}
+ 
+#domain-tree .entry span:hover,
+#domain-tree .entry span:hover + .branch .entry span {
+  background: #e6e6e6;
+  color: #000;
+  border-color: #a6a6a6;
+}
+ 
+#domain-tree .entry span:hover + .branch .entry::after,
+#domain-tree .entry span:hover + .branch .entry::before,
+#domain-tree .entry span:hover + .branch::before,
+#domain-tree .entry span:hover + .branch .branch::before {
+  border-color: #a6a6a6;
+}
+</style>
