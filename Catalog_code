@@ -56,18 +56,68 @@
           </div>
           <div
             class="entry"
-            v-for="(technology, i) in domain.technologies"
-            :key="i"
+            v-for="(technology, technologyIndex) in domain.technologies"
+            :key="technologyIndex"
           >
             <span
               >{{ technology.name }}
               <q-icon name="add" class="cursor-pointer" @click="test"
             /></span>
+
             <div class="branch _deliverable">
+              <div>
+                <q-btn-dropdown :dense="true" label="Add Deliverables">
+                  <div>
+                    <q-checkbox
+                      v-model="selectAll"
+                      label="Select All"
+                      @update:model-value="selectAllDomain()"
+                    />
+                    <q-input
+                      :dense="true"
+                      v-model="searchDeliverable"
+                      label="Search"
+                      @update:model-value="filterSearch()"
+                    />
+                    <div class="deliverable-list">
+                      <div
+                        v-for="(
+                          deliverable, deliverableindex
+                        ) in deliverableList"
+                        :key="deliverableindex"
+                        class="flex justify-between body"
+                      >
+                        <q-checkbox
+                          v-model="deliverableModel"
+                          :val="deliverable.name"
+                          :label="deliverable.name"
+                        />
+                      </div>
+                    </div>
+                    <div
+                      class="_domain-btn-wrapper flex justify-between q-ma-sm"
+                    >
+                      <div class="_cancel-btn cursor-pointer" v-close-popup>
+                        <span>Cancel</span>
+                      </div>
+                      <div
+                        class="_apply-btn cursor-pointer"
+                        v-close-popup
+                        @click="addDeliverable(domainIndex, technologyIndex)"
+                      >
+                        <span>Add</span>
+                      </div>
+                    </div>
+                  </div>
+                </q-btn-dropdown>
+              </div>
+
               <div
                 class="entry"
-                v-for="(deliverable, i) in technology.deliverables"
-                :key="i"
+                v-for="(
+                  deliverable, deliverableindex
+                ) in technology.deliverables"
+                :key="deliverableindex"
               >
                 <span>{{ deliverable.name }}</span>
                 <div class="branch">
@@ -103,8 +153,6 @@
         </div>
       </div>
     </div>
- 
-   
   </div>
 </template>
 <script setup>
@@ -117,7 +165,7 @@ const domainData = ref([
     domainName: "Domain 2",
   },
 ]);
- 
+
 const selectAll = ref(false);
 const domainList = ref([
   {
@@ -147,11 +195,29 @@ const technologyList = ref([
     name: "Technologies 3",
   },
 ]);
+
+const deliverableList = ref([
+  {
+    id: 1,
+    name: "Deliverable 1",
+  },
+  {
+    id: 2,
+    name: "Deliverable 2",
+  },
+  {
+    id: 3,
+    name: "Deliverable 3",
+  },
+]);
 const searchDomain = ref("");
 const searchTech = ref("");
+const searchDeliverable = ref("");
+
 const techModel = ref([]);
 const domainModel = ref([]);
-const cards = ref([]);
+const deliverableModel = ref([]);
+// const cards = ref([]);
 const domainListData = ref([
   {
     id: 1,
@@ -166,7 +232,7 @@ const domainListData = ref([
     name: "Domain3",
   },
 ]);
- 
+
 function selectAllDomain() {
   selectAll.value != selectAll.value;
   if (selectAll.value) {
@@ -184,16 +250,15 @@ function filterSearch() {
     domain.name.toLowerCase().includes(searchDomain.value)
   );
 }
- 
-function addDomain() {
-  domainModel.value.forEach((domain) => {
-    domainData.value.push({
-      domainName: domain,
-    });
-  });
-}
+
+// function addDomain() {
+//   domainModel.value.forEach((domain) => {
+//     domainData.value.push({
+//       domainName: domain,
+//     });
+//   });
+// }
 function addTechnology(domainIndex) {
-  console.log(domainIndex);
   domainData.value[domainIndex].technologies = [];
   techModel.value.forEach((tech) => {
     domainData.value[domainIndex].technologies.push({
@@ -201,11 +266,15 @@ function addTechnology(domainIndex) {
     });
   });
 }
- 
- 
- 
- 
- 
+function addDeliverable(domainIndex, techIndex) {
+  domainData.value[domainIndex].technologies[techIndex].deliverables = [];
+  deliverableModel.value.forEach((deliverable) => {
+    domainData.value[domainIndex].technologies[techIndex].deliverables.push({
+      name: deliverable,
+    });
+  });
+}
+
 const testdrop = ref("");
 function test(data) {
   testdrop.value = data;
@@ -218,11 +287,11 @@ function test(data) {
 #domain-tree .branch {
   padding: 0px 0 0px 20px;
 }
- 
+
 #domain-tree .branch:not(:first-child) {
   margin-left: 170px;
 }
- 
+
 #domain-tree .branch:not(:first-child):after {
   content: "";
   width: 20px;
@@ -232,13 +301,13 @@ function test(data) {
   top: 50%;
   margin-top: 1px;
 }
- 
+
 .entry {
   position: relative;
   min-height: 40px;
   display: block;
 }
- 
+
 .entry:before {
   content: "";
   height: 100%;
@@ -246,12 +315,12 @@ function test(data) {
   position: absolute;
   left: -20px;
 }
- 
+
 .entry:first-child:after {
   height: 10px;
   border-radius: 10px 0 0 0;
 }
- 
+
 .entry:first-child:before {
   width: 10px;
   height: 50%;
@@ -259,7 +328,7 @@ function test(data) {
   margin-top: 1px;
   border-radius: 10px 0 0 0;
 }
- 
+
 .entry:after {
   content: "";
   width: 20px;
@@ -270,7 +339,7 @@ function test(data) {
   top: 50%;
   margin-top: 1px;
 }
- 
+
 .entry:last-child:before {
   width: 10px;
   height: 50%;
@@ -284,18 +353,18 @@ function test(data) {
   border-radius: 0 0 0 10px;
   margin-top: -9px;
 }
- 
+
 .entry:only-child:after {
   width: 10px;
   height: 0px;
   margin-top: 1px;
   border-radius: 0px;
 }
- 
+
 .entry:only-child:before {
   display: none;
 }
- 
+
 .entry span {
   border: 1px solid #ccc;
   display: block;
@@ -308,20 +377,20 @@ function test(data) {
   top: 50%;
   margin-top: -15px;
   color: #666;
- 
+
   font-size: 14px;
   display: inline-block;
   border-radius: 5px;
   transition: all 0.5s;
 }
- 
+
 #domain-tree .entry span:hover,
 #domain-tree .entry span:hover + .branch .entry span {
   background: #e6e6e6;
   color: #000;
   border-color: #a6a6a6;
 }
- 
+
 #domain-tree .entry span:hover + .branch .entry::after,
 #domain-tree .entry span:hover + .branch .entry::before,
 #domain-tree .entry span:hover + .branch::before,
